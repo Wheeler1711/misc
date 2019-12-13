@@ -11,6 +11,9 @@ from datetime import datetime
 # but i tried to make it pretty general
 
 
+night_pm = 20 #what time does it get dark
+night_am = 7  #what time does it get light
+
 #grab the file
 csv_files = glob.glob("*.csv")
 filename = csv_files[0]
@@ -27,11 +30,22 @@ data = np.genfromtxt(filename,delimiter = ",",
 
 # convert time to array that is usable for plotting
 time_arr = np.zeros(len(data['Date'])) # initialzie the array
+night = np.zeros(len(data['Date']))
 for i in range(0,len(data['Date'])):
     string = data['Date'][i] + " "+ data['Time'][i]
     match = re.search(r'\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}', string)
     date_and_time= datetime.strptime(match.group(), '%Y-%m-%d %H:%M:%S')
     time_arr[i] = matplotlib.dates.date2num(date_and_time)
+    if int(date_and_time.strftime('%H')) >night_pm: # its late
+        night[i] = 1
+    if int(date_and_time.strftime('%H')) <night_am: # its early
+        night[i] = 1
+
+night_index = np.where(night>0.5)
+day_index = np.where(night<0.5)
+
+
+
 
 #plot all temperatures
 
@@ -75,6 +89,12 @@ plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%m/%d/%Y %H:%M:%S'))
 plt.xticks(rotation=10,ha="right")
 plt.ylabel("Temperature (F)")
 plt.xlabel("Date and time")
+ylim = ax.get_ylim()
+night_ylim = night*ax.get_ylim()[1]
+night_ylim[day_index] = ax.get_ylim()[0]
+
+ax.fill_between(time_arr,np.ones(len(time_arr))*ax.get_ylim()[0],night_ylim,color = 'grey',alpha = 0.2)
+ax.set_ylim(ylim)
 
 
 def onpick(event):
