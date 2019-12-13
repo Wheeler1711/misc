@@ -23,7 +23,7 @@ for i in range(len(input_dtypes),ncols): # the rest are floats
 
 data = np.genfromtxt(filename,delimiter = ",",
                          dtype = input_dtypes,
-                         names = True,missing_values = "",filling_values = np.nan,skip_header = 5,usecols = np.arange(0,20))
+                         names = True,missing_values = "",filling_values = np.nan,skip_header = 5,usecols = np.arange(0,ncols-1))
 
 # convert time to array that is usable for plotting
 time_arr = np.zeros(len(data['Date'])) # initialzie the array
